@@ -14,7 +14,45 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: sample-service
-          uri: lb://SAMPLE-SERVICE
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/sample/**
+            - Path=/login
+            - Method=POST
+
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/logout
+            - Method=POST
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user
+            - Method=GET
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users
+            - Method=POST, PUT
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/nickname/**
+            - Method=GET
+
+        # 다른 서비스(user-service / goal-service) 예시
+        # filter 추가
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/**
+            - Method=GET
+          filters:
+            - AuthorizationFilter
+
+jwt:
+  secretKey: z1gWDQyOzFEV7pv5PIMhauPQen4cbXVBG8sM1SfKT6FrXm8FPnRdLUrRJqMGF4cWPMjna9mOxzAfup9SCX6QZKZikBf4iIYjevI7

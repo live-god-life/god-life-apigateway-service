@@ -1,0 +1,122 @@
+package com.godlife.apigatewayservice.filter;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.Optional;
+
+@Component
+@Slf4j
+public class AuthorizationFilter extends AbstractGatewayFilterFactory<AuthorizationFilter.Config> {
+
+    /**
+     * JWT token 암호화 키
+     */
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+
+    /**
+     * AuthorizationFilter 생성자
+     */
+    public AuthorizationFilter() {
+        super(Config.class);
+    }
+
+    /**
+     * 설정 관련 config
+     */
+    public static class Config {}
+
+    /**
+     * 필터 실행 로직
+     * @param config    설정 내용
+     * @return 다음 필터 진행
+     */
+    @Override
+    public GatewayFilter apply(Config config) {
+        return (((exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+
+            String jwt = Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                                 .map(token -> token.substring("Bearer ".length()))
+                                 .map(String::trim)
+                                 .orElse(null);
+
+            // 헤더에 토큰이 없는 경우
+            if(!StringUtils.hasText(jwt)) {
+                return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
+            }
+
+            // 토큰이 유효하지 않는 경우
+            if(!isJwtValid(jwt)) {
+                return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
+            }
+
+            return chain.filter(exchange);
+        }));
+    }
+
+    /**
+     * JWT token 유효성 검사
+     * @param jwt   JWT token
+     * @return 토큰 유효성 검사 결과
+     */
+    private boolean isJwtValid(String jwt) {
+        String subject;
+
+        try {
+            subject = Jwts.parser()
+                          .setSigningKey(secretKey.getBytes())
+                          .parseClaimsJws(jwt)
+                          .getBody()
+                          .getSubject();
+        } catch (MalformedJwtException | SignatureException e) {
+            log.error("Invalid jwt signature");
+            return false;
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token");
+            return false;
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token");
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+
+        return StringUtils.hasText(subject);
+    }
+
+    /**
+     * 실패 시 처리 로직
+     * @param exchange          Http 요청-응답 관련 속성
+     * @param errorMessage      에러 메시지
+     * @param httpStatus        Http 상태 코드
+     * @return 에러 Response
+     */
+    private Mono<Void> onError(ServerWebExchange exchange, String errorMessage, HttpStatus httpStatus) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(httpStatus);
+
+        if(log.isErrorEnabled()) {
+            log.error("Error code: {}", httpStatus);
+            log.error("Error message: {}", errorMessage);
+        }
+
+        return response.setComplete();
+    }
+}
