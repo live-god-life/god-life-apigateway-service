@@ -21,6 +21,12 @@ spring:
             - Path=/logout
             - Method=POST
 
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/tokens
+            - Method=GET
+
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
@@ -31,7 +37,7 @@ spring:
           uri: lb://USER-SERVICE
           predicates:
             - Path=/users
-            - Method=POST, PUT
+            - Method=POST, PATCH
 
         - id: user-service
           uri: lb://USER-SERVICE
