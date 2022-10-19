@@ -30,28 +30,21 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user
+            - Path=/nickname/**
             - Method=GET
 
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
             - Path=/users
-            - Method=POST, PATCH
+            - Method=GET, POST, PATCH
+          filters:
+            - UserAuthorizationFilter
 
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/nickname/**
-            - Method=GET
-
-        # 다른 서비스(user-service / goal-service) 예시
-        # filter 추가
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
             - Path=/**
-            - Method=GET
           filters:
             - AuthorizationFilter
 
