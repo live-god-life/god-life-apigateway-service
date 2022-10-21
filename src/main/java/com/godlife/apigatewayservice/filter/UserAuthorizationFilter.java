@@ -14,13 +14,13 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
-public class AuthorizationFilter extends AbstractGatewayFilterFactory<AuthorizationFilter.Config> {
+public class UserAuthorizationFilter extends AbstractGatewayFilterFactory<UserAuthorizationFilter.Config> {
 
     /**
-     * AuthorizationFilter 생성자
+     * UserAuthorizationFilter 생성자
      */
-    public AuthorizationFilter() {
-        super(Config.class);
+    public UserAuthorizationFilter() {
+        super(UserAuthorizationFilter.Config.class);
     }
 
     /**
@@ -34,27 +34,20 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
      * @return 다음 필터 진행
      */
     @Override
-    public GatewayFilter apply(Config config) {
+    public GatewayFilter apply(UserAuthorizationFilter.Config config) {
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
             String jwt = JwtUtils.createToken(request);
 
-            // 헤더에 토큰이 없는 경우
-            if(!StringUtils.hasText(jwt)) {
-                return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
-            }
-
-            // 토큰이 유효하지 않는 경우
-            if(!JwtUtils.isJwtValid(jwt)) {
+            // 헤더에 토큰이 있지만, 해당 토큰이 유효하지 않는 경우
+            if(StringUtils.hasText(jwt) && !JwtUtils.isJwtValid(jwt)) {
                 return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
             }
 
             return chain.filter(exchange);
         }));
     }
-
-
 
     /**
      * 실패 시 처리 로직
