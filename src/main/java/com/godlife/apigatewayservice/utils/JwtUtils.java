@@ -6,8 +6,12 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Slf4j
 public class JwtUtils {
@@ -50,5 +54,17 @@ public class JwtUtils {
         }
 
         return StringUtils.hasText(subject);
+    }
+
+    /**
+     * JWT token 생성
+     * @param request       ServerHttpRequest
+     * @return JWT token
+     */
+    public static String createToken(ServerHttpRequest request) {
+        return Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                       .map(token -> token.substring("Bearer ".length()))
+                       .map(String::trim)
+                       .orElse(null);
     }
 }

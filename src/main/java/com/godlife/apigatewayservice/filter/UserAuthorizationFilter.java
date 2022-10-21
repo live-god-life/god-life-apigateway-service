@@ -41,11 +41,7 @@ public class UserAuthorizationFilter extends AbstractGatewayFilterFactory<UserAu
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            String jwt = Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
-                    .map(token -> token.substring("Bearer ".length()))
-                    .map(String::trim)
-                    .orElse(null);
-
+            String jwt = JwtUtils.createToken(request);
 
             // 헤더에 토큰이 있지만, 해당 토큰이 유효하지 않는 경우
             if(StringUtils.hasText(jwt) && !JwtUtils.isJwtValid(jwt)) {

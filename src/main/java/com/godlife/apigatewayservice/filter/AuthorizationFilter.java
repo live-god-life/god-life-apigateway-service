@@ -41,10 +41,7 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            String jwt = Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
-                                 .map(token -> token.substring("Bearer ".length()))
-                                 .map(String::trim)
-                                 .orElse(null);
+            String jwt = JwtUtils.createToken(request);
 
             // 헤더에 토큰이 없는 경우
             if(!StringUtils.hasText(jwt)) {
