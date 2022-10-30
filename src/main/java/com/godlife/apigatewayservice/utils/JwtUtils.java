@@ -61,8 +61,9 @@ public class JwtUtils {
      * @param request       ServerHttpRequest
      * @return JWT token
      */
-    public static String createToken(ServerHttpRequest request) {
+    public static String getToken(ServerHttpRequest request) {
         return Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                       .filter(token -> token.indexOf("Bearer") > -1)
                        .map(token -> token.substring("Bearer ".length()))
                        .map(String::trim)
                        .orElse(null);
