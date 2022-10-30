@@ -8,6 +8,8 @@ spring:
     active: local
   cloud:
     gateway:
+      default-filters:
+        - name: LoggingFilter
       routes:
         - id: auth-service
           uri: lb://AUTH-SERVICE
