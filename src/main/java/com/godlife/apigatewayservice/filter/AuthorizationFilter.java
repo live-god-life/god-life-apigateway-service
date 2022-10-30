@@ -38,7 +38,7 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            String jwt = JwtUtils.createToken(request);
+            String jwt = JwtUtils.getToken(request);
 
             // 헤더에 토큰이 없는 경우
             if(!StringUtils.hasText(jwt)) {
@@ -50,7 +50,15 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
                 return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
             }
 
-            return chain.filter(exchange);
+            // 토큰에서 사용자 정보 추출
+            String userId = JwtUtils.extractTokenToUserId(jwt);
+
+            // Request 헤더에 사용자 정보 추가
+            ServerHttpRequest newRequest = request.mutate()
+                                                  .header("x-user", userId)
+                                                  .build();
+
+            return chain.filter(exchange.mutate().request(newRequest).build());
         }));
     }
 

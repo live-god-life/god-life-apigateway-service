@@ -38,11 +38,25 @@ public class UserAuthorizationFilter extends AbstractGatewayFilterFactory<UserAu
         return (((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            String jwt = JwtUtils.createToken(request);
+            String jwt = JwtUtils.getToken(request);
 
-            // 헤더에 토큰이 있지만, 해당 토큰이 유효하지 않는 경우
-            if(StringUtils.hasText(jwt) && !JwtUtils.isJwtValid(jwt)) {
-                return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
+            // 헤더에 토큰이 있는 경우
+            if(StringUtils.hasText(jwt)) {
+
+                // 해당 토큰이 유효하지 않는 경우
+                if(!JwtUtils.isJwtValid(jwt)) {
+                    return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
+                }
+
+                // 토큰에서 사용자 정보 추출
+                String userId = JwtUtils.extractTokenToUserId(jwt);
+
+                // Request 헤더에 사용자 정보 추가
+                ServerHttpRequest newRequest = request.mutate()
+                        .header("x-user", userId)
+                        .build();
+
+                return chain.filter(exchange.mutate().request(newRequest).build());
             }
 
             return chain.filter(exchange);
