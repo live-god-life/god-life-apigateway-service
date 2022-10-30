@@ -68,4 +68,17 @@ public class JwtUtils {
                        .map(String::trim)
                        .orElse(null);
     }
+
+    /**
+     * JWT token 내부 사용자 아이디 조회
+     * @param token       JWT token
+     * @return 사용자 아이디
+     */
+    public static String extractTokenToUserId(String token) {
+        return Jwts.parser()
+                   .setSigningKey(secretKey.getBytes())
+                   .parseClaimsJws(token)
+                   .getBody()
+                   .getSubject();
+    }
 }
