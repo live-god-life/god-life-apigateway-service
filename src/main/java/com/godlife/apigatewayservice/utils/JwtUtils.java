@@ -36,10 +36,10 @@ public class JwtUtils {
 
         try {
             subject = Jwts.parser()
-                    .setSigningKey(secretKey.getBytes())
-                    .parseClaimsJws(jwt)
-                    .getBody()
-                    .getSubject();
+                          .setSigningKey(secretKey.getBytes())
+                          .parseClaimsJws(jwt)
+                          .getBody()
+                          .getSubject();
         } catch (MalformedJwtException | SignatureException e) {
             log.error("Invalid jwt signature");
             return false;
