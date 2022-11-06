@@ -36,10 +36,10 @@ public class JwtUtils {
 
         try {
             subject = Jwts.parser()
-                    .setSigningKey(secretKey.getBytes())
-                    .parseClaimsJws(jwt)
-                    .getBody()
-                    .getSubject();
+                          .setSigningKey(secretKey.getBytes())
+                          .parseClaimsJws(jwt)
+                          .getBody()
+                          .getSubject();
         } catch (MalformedJwtException | SignatureException e) {
             log.error("Invalid jwt signature");
             return false;
@@ -61,10 +61,24 @@ public class JwtUtils {
      * @param request       ServerHttpRequest
      * @return JWT token
      */
-    public static String createToken(ServerHttpRequest request) {
+    public static String getToken(ServerHttpRequest request) {
         return Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                       .filter(token -> token.indexOf("Bearer") > -1)
                        .map(token -> token.substring("Bearer ".length()))
                        .map(String::trim)
                        .orElse(null);
+    }
+
+    /**
+     * JWT token 내부 사용자 아이디 조회
+     * @param token       JWT token
+     * @return 사용자 아이디
+     */
+    public static String extractTokenToUserId(String token) {
+        return Jwts.parser()
+                   .setSigningKey(secretKey.getBytes())
+                   .parseClaimsJws(token)
+                   .getBody()
+                   .getSubject();
     }
 }
