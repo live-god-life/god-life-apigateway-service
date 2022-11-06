@@ -39,9 +39,7 @@ spring:
           uri: lb://USER-SERVICE
           predicates:
             - Path=/users
-            - Method=GET, POST, PATCH
-          filters:
-            - UserAuthorizationFilter
+            - Method=POST
 
         - id: user-service
           uri: lb://USER-SERVICE

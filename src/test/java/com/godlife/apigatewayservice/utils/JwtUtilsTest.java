@@ -30,7 +30,7 @@ public class JwtUtilsTest {
     void successValidToken() {
 
         // Given
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJob29uIiwiZXhwIjoxODAwMDAwMDAwLCJpYXQiOjE2NjcxMzk0NDUsImlzcyI6InpQbFlvVUc4QWEifQ.rjwRBf0E_CQZlnCG-KIUGVCSj-7a6Sl3TlzdB6yW6g_5UIFVdOH4-7cQmZ-pCa4VkyothvnSAxi_CF_jndnvvQ";
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIwMDAxIiwiZXhwIjoxNjY3NDA0NTM0LCJpYXQiOjE2Njc0MDA5MzUsImlzcyI6InpEREo1Y1BjaFcifQ.68tQqNeNnclO_Qnog1B6d1RULz1wng9FjMOJ6vSVRf8Vbw9fHzCFiIQWw3O75ruk3gjkrwQwoh881QVa3H2UdQ";
 
         // When
         boolean isValidToken = JwtUtils.isJwtValid(token);
