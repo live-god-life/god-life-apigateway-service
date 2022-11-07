@@ -41,13 +41,6 @@ spring:
             - Path=/users
             - Method=POST
 
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/**
-          filters:
-            - AuthorizationFilter
-
         - id: goal-service
           uri: lb://GOAL-SERVICE
           predicates:
@@ -61,6 +54,15 @@ spring:
             - Path=/feeds/**
           filters:
             - AuthorizationFilter
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/**
+          filters:
+            - AuthorizationFilter
+
+
 
 jwt:
   secretKey: z1gWDQyOzFEV7pv5PIMhauPQen4cbXVBG8sM1SfKT6FrXm8FPnRdLUrRJqMGF4cWPMjna9mOxzAfup9SCX6QZKZikBf4iIYjevI7
