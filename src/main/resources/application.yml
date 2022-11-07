@@ -51,14 +51,14 @@ spring:
         - id: goal-service
           uri: lb://GOAL-SERVICE
           predicates:
-            - Path=/**
+            - Path=/goals/**
           filters:
             - AuthorizationFilter
 
         - id: feed-service
           uri: lb://FEED-SERVICE
           predicates:
-            - Path=/**
+            - Path=/feeds/**
           filters:
             - AuthorizationFilter
 
