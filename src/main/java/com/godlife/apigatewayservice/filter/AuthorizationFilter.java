@@ -1,7 +1,10 @@
 package com.godlife.apigatewayservice.filter;
 
+import com.godlife.apigatewayservice.response.ApiResponse;
 import com.godlife.apigatewayservice.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
@@ -9,12 +12,16 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
 public class AuthorizationFilter extends AbstractGatewayFilterFactory<AuthorizationFilter.Config> {
+
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
 
     /**
      * AuthorizationFilter 생성자
@@ -52,6 +59,26 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
 
             // 토큰에서 사용자 정보 추출
             String userId = JwtUtils.extractTokenToUserId(jwt);
+
+            // 사용자 정보 유효성 검사
+            WebClient webClient = WebClient.builder()
+                    .baseUrl(loadBalancerClient.choose("USER-SERVICE").getUri().toString())
+                    .build();
+
+            Object responseData = webClient.get()
+                                           .uri(uriBuilder -> uriBuilder
+                                                .path("/users")
+                                                .build())
+                                           .header("x-user", userId)
+                                           .retrieve()
+                                           .bodyToMono(ApiResponse.class)
+                                           .onErrorReturn(new ApiResponse<>())
+                                           .block()
+                                           .getData();
+
+            if(responseData == null) {
+                return onError(exchange, "This request is not a user.", HttpStatus.UNAUTHORIZED);
+            }
 
             // Request 헤더에 사용자 정보 추가
             ServerHttpRequest newRequest = request.mutate()
