@@ -47,6 +47,17 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
 
             String jwt = JwtUtils.getToken(request);
 
+            // 테스트 진행용 ========================================
+            if ("test".equals(jwt)) {
+                // Request 헤더에 사용자 정보 추가
+                ServerHttpRequest newRequest = request.mutate()
+                    .header("x-user", "1")
+                    .build();
+
+                return chain.filter(exchange.mutate().request(newRequest).build());
+            }
+            // 테스트 진행용 ========================================
+
             // 헤더에 토큰이 없는 경우
             if(!StringUtils.hasText(jwt)) {
                 return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
