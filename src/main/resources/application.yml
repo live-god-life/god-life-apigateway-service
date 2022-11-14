@@ -64,6 +64,13 @@ spring:
           filters:
             - AuthorizationFilter
 
+        - id: common-service
+          uri: lb://COMMON-SERVICE
+          predicates:
+            - Path=/commons/**
+          filters:
+            - AuthorizationFilter
+
 
 
 jwt:
