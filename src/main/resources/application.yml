@@ -2,6 +2,8 @@ server:
   port: 8000
 
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: apigateway-service
   profiles:
@@ -39,16 +41,37 @@ spring:
           uri: lb://USER-SERVICE
           predicates:
             - Path=/users
-            - Method=GET, POST, PATCH
+            - Method=POST
+
+        - id: goal-service
+          uri: lb://GOAL-SERVICE
+          predicates:
+            - Path=/goals/**
           filters:
-            - UserAuthorizationFilter
+            - AuthorizationFilter
+
+        - id: feed-service
+          uri: lb://FEED-SERVICE
+          predicates:
+            - Path=/feeds/**
+          filters:
+            - AuthorizationFilter
 
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/**
+            - Path=/users/**
           filters:
             - AuthorizationFilter
+
+        - id: common-service
+          uri: lb://COMMON-SERVICE
+          predicates:
+            - Path=/commons/**
+          filters:
+            - AuthorizationFilter
+
+
 
 jwt:
   secretKey: z1gWDQyOzFEV7pv5PIMhauPQen4cbXVBG8sM1SfKT6FrXm8FPnRdLUrRJqMGF4cWPMjna9mOxzAfup9SCX6QZKZikBf4iIYjevI7
