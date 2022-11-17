@@ -1,3 +1,6 @@
+server:
+  port: 80
+
 spring:
   config:
     activate:
@@ -8,6 +11,6 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://49.50.167.208:8761/eureka
+      defaultZone: http://101.101.208.221/:8761/eureka
   instance:
     prefer-ip-address: true
