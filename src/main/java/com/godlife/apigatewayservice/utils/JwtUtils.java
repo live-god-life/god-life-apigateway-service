@@ -46,30 +46,17 @@ public class JwtUtils {
 		} catch (MalformedJwtException | SignatureException e) {
 			log.error("Invalid jwt signature");
 			return false;
-		} catch (ExpiredJwtException e) {
-			log.error("Expired JWT token");
-			return false;
 		} catch (UnsupportedJwtException e) {
 			log.error("Unsupported JWT token");
+			return false;
+		} catch (ExpiredJwtException e) {
+			log.error("Expired JWT token");
 			return false;
 		} catch (Exception e) {
 			return false;
 		}
 
 		return StringUtils.hasText(subject);
-	}
-
-	/**
-	 * JWT token 생성
-	 * @param request       ServerHttpRequest
-	 * @return JWT token
-	 */
-	public static String getToken(ServerHttpRequest request) {
-		return Optional.ofNullable(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
-			.filter(token -> token.indexOf("Bearer") > -1)
-			.map(token -> token.substring("Bearer ".length()))
-			.map(String::trim)
-			.orElse(null);
 	}
 
 	/**
