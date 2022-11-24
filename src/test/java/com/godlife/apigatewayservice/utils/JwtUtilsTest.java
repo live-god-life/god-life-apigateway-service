@@ -40,43 +40,6 @@ public class JwtUtilsTest {
 	}
 
 	@Test
-	@DisplayName("토큰 추출을 실패한다.")
-	void failGetJwt() {
-
-		// Given
-		String emptyToken = "";
-
-		MockServerHttpRequest request = MockServerHttpRequest.get("/test")
-			.header(HttpHeaders.AUTHORIZATION, emptyToken)
-			.build();
-
-		// When
-		String token = JwtUtils.getToken(request);
-
-		// Then
-		assertThat(token).isNull();
-	}
-
-	@Test
-	@DisplayName("토큰 추출을 성공한다.")
-	void successGetJwt() {
-
-		// Given
-		String fillToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsZWUiLCJleHAiOjE2NjUxNTQxMTUsImlhdCI6MTY2NTE1MDUxNSwiaXNzIjoiNWZUbEQzeWJnbiJ9.Ym8XYO47zH0iAaU8pVFRxDxLYB3UJSVdB9ZLloLoGqlul-1Xt5wT2CoJbcKLPosWhBtgdSo5k-3_mBeGHLDXIg";
-
-		MockServerHttpRequest request = MockServerHttpRequest.get("/test")
-			.header(HttpHeaders.AUTHORIZATION, fillToken)
-			.build();
-
-		// When
-		String token = JwtUtils.getToken(request);
-
-		// Then
-		assertThat(token).isEqualTo(
-			"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsZWUiLCJleHAiOjE2NjUxNTQxMTUsImlhdCI6MTY2NTE1MDUxNSwiaXNzIjoiNWZUbEQzeWJnbiJ9.Ym8XYO47zH0iAaU8pVFRxDxLYB3UJSVdB9ZLloLoGqlul-1Xt5wT2CoJbcKLPosWhBtgdSo5k-3_mBeGHLDXIg");
-	}
-
-	@Test
 	@DisplayName("토큰에서 사용자 아이디 추출을 실패한다.")
 	void failExtractTokenToUserId() {
 
