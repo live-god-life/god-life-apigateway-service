@@ -8,7 +8,7 @@ WORKDIR ${WORKSPACE}
 
 # copy code & build
 COPY . .
-RUN ./gradlew clean bootjar
+RUN ./gradlew clean bootjar -x test
 
 # unpack jar
 WORKDIR ${BUILD_TARGET}
