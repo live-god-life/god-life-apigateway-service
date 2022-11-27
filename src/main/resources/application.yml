@@ -1,20 +1,79 @@
 server:
   port: 8000
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
-
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: apigateway-service
+  profiles:
+    active: local
   cloud:
     gateway:
+      default-filters:
+        - name: LoggingFilter
       routes:
-        - id: sample-service
-          uri: lb://SAMPLE-SERVICE
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/sample/**
+            - Path=/login
+            - Method=POST
+
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/logout
+            - Method=POST
+
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/tokens
+            - Method=GET
+          filters:
+            - TokenFilter
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/nickname/**
+            - Method=GET
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users
+            - Method=POST
+
+        - id: goal-service
+          uri: lb://GOAL-SERVICE
+          predicates:
+            - Path=/goals/**
+          filters:
+            - AuthorizationFilter
+
+        - id: feed-service
+          uri: lb://FEED-SERVICE
+          predicates:
+            - Path=/feeds/**
+          filters:
+            - AuthorizationFilter
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+          filters:
+            - AuthorizationFilter
+
+        - id: common-service
+          uri: lb://COMMON-SERVICE
+          predicates:
+            - Path=/commons/**
+          filters:
+            - AuthorizationFilter
+
+
+
+jwt:
+  secretKey: z1gWDQyOzFEV7pv5PIMhauPQen4cbXVBG8sM1SfKT6FrXm8FPnRdLUrRJqMGF4cWPMjna9mOxzAfup9SCX6QZKZikBf4iIYjevI7
