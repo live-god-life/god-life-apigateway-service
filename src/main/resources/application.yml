@@ -30,6 +30,8 @@ spring:
           predicates:
             - Path=/tokens
             - Method=GET
+          filters:
+            - TokenFilter
 
         - id: user-service
           uri: lb://USER-SERVICE
