@@ -55,6 +55,12 @@ spring:
         - id: feed-service
           uri: lb://FEED-SERVICE
           predicates:
+            - Path=/feeds/images/**
+            - Method=GET
+
+        - id: feed-service
+          uri: lb://FEED-SERVICE
+          predicates:
             - Path=/feeds/**
           filters:
             - AuthorizationFilter
