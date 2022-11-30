@@ -60,9 +60,9 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 
 			// Request, Response 로그 출력
 			ServerHttpRequest decoratedRequest = getDecoratedRequest(request);
-			ServerHttpResponseDecorator decoratedResponse = getDecoratedResponse(request, response, dataBufferFactory);
+			// ServerHttpResponseDecorator decoratedResponse = getDecoratedResponse(request, response, dataBufferFactory);
 
-			return chain.filter(exchange.mutate().request(decoratedRequest).response(decoratedResponse).build());
+			return chain.filter(exchange.mutate().request(decoratedRequest).response(response).build());
 		}), Ordered.HIGHEST_PRECEDENCE);
 
 		return filter;
