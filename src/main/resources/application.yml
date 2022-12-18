@@ -76,8 +76,6 @@ spring:
           uri: lb://COMMON-SERVICE
           predicates:
             - Path=/commons/**
-          filters:
-            - AuthorizationFilter
 
 
 
